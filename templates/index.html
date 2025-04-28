@@ -1,33 +1,35 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Atlanta Safety Score</title>
-</head>
+<html>
+<head><title>Atlanta Safety Score</title></head>
 <body>
-    <h1>Atlanta Safety Score</h1>
+  <h1>Safety Score</h1>
+  <form method="post">
+    <input name="address" placeholder="Enter address" required>
+    <button type="submit">Check</button>
+  </form>
 
-    <form method="post">
-        <label for="address">Enter Address:</label>
-        <input type="text" name="address" id="address" required>
-        <button type="submit">Check Safety</button>
-    </form>
+  {% if error_message %}
+    <p style="color:red">{{ error_message }}</p>
+  {% endif %}
 
-    {% if error_message %}
-        <p style="color: red;">{{ error_message }}</p>
+  {% if safety_score is not none %}
+    <h2>Score for {{ address }}: {{ safety_score }}/100</h2>
+
+    {% if crimes is not none %}
+      <h3>Nearby Crimes:</h3>
+      <ul>
+        {% for _, crime in crimes.iterrows() %}
+          {% set ctype = crime.get('OFFENSE_DESC') or crime.get('ucr_literal') or 'Unknown Crime' %}
+          {% set loc   = crime.get('LOCATION_DESC') or crime.get('street') or 'Unknown Location' %}
+          {% set dt    = crime.get('occur_dt') %}
+          <li>
+            {{ ctype }}  
+            {% if loc %}at {{ loc }}{% endif %}
+            {% if dt %}on {{ dt.strftime('%Y-%m-%d') }}{% endif %}
+          </li>
+        {% endfor %}
+      </ul>
     {% endif %}
-
-    {% if safety_score is not none %}
-        <h2>Safety Score for "{{ address }}": {{ safety_score }}/100</h2>
-
-        {% if crimes is not none %}
-            <h3>Nearby Crimes:</h3>
-            <ul>
-                {% for index, crime in crimes.iterrows() %}
-                    <li>{{ crime.get('Crime', 'Unknown') }} at {{ crime.get('Location', 'Unknown location') }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
-    {% endif %}
+  {% endif %}
 </body>
 </html>
