@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Atlanta Safety Score</title>
+</head>
+<body>
+    <h1>Atlanta Safety Score</h1>
+
+    <form method="post">
+        <label for="address">Enter Address:</label>
+        <input type="text" name="address" id="address" required>
+        <button type="submit">Check Safety</button>
+    </form>
+
+    {% if error_message %}
+        <p style="color: red;">{{ error_message }}</p>
+    {% endif %}
+
+    {% if safety_score is not none %}
+        <h2>Safety Score for "{{ address }}": {{ safety_score }}/100</h2>
+
+        {% if crimes is not none %}
+            <h3>Nearby Crimes:</h3>
+            <ul>
+                {% for index, crime in crimes.iterrows() %}
+                    <li>{{ crime.get('Crime', 'Unknown') }} at {{ crime.get('Location', 'Unknown location') }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endif %}
+</body>
+</html>
