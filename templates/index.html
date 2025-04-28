@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html>
-<head><title>Atlanta Safety Score</title></head>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Atlanta Safety Score</title>
+</head>
 <body>
-  <h1>Safety Score</h1>
+  <h1>Atlanta Safety Score</h1>
   <form method="post">
-    <input name="address" placeholder="Enter address" required>
+    <label>Enter Address:</label>
+    <input type="text" name="address" placeholder="e.g. 355 Cleveland Ave SE" required>
     <button type="submit">Check</button>
   </form>
 
@@ -13,23 +17,28 @@
   {% endif %}
 
   {% if safety_score is not none %}
-    <h2>Score for {{ address }}: {{ safety_score }}/100</h2>
+    <h2>Score for "{{ address }}": {{ safety_score }}/100</h2>
 
-    {% if crimes is not none %}
-      <h3>Nearby Crimes:</h3>
-      <ul>
-        {% for _, crime in crimes.iterrows() %}
-          {% set ctype = crime.get('OFFENSE_DESC') or crime.get('ucr_literal') or 'Unknown Crime' %}
-          {% set loc   = crime.get('LOCATION_DESC') or crime.get('street') or 'Unknown Location' %}
-          {% set dt    = crime.get('occur_dt') %}
-          <li>
-            {{ ctype }}  
-            {% if loc %}at {{ loc }}{% endif %}
-            {% if dt %}on {{ dt.strftime('%Y-%m-%d') }}{% endif %}
-          </li>
-        {% endfor %}
-      </ul>
-    {% endif %}
+    <h3>📋 Available Columns (for debugging):</h3>
+    <ul>
+      {% for col in crimes.columns %}
+        <li>{{ col }}</li>
+      {% endfor %}
+    </ul>
+
+    <h3>Nearby Crimes:</h3>
+    <ul>
+      {% for _, crime in crimes.iterrows() %}
+        {% set ctype = crime.get('OFFENSE_DESC') or crime.get('UCR_Literal') or crime.get('ucr_literal') or crime.get('CRIME') or 'Unknown Crime' %}
+        {% set loc   = crime.get('LOCATION_DESC') or crime.get('ADDRESS') or crime.get('StreetAddress') or 'Unknown Location' %}
+        {% set dt    = crime.get('occur_dt') %}
+        <li>
+          <strong>{{ ctype }}</strong>
+          {% if loc %} at {{ loc }}{% endif %}
+          {% if dt %} on {{ dt.strftime('%Y-%m-%d') }}{% endif %}
+        </li>
+      {% endfor %}
+    </ul>
   {% endif %}
 </body>
 </html>
